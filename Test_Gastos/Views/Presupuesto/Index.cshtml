@@ -1,0 +1,162 @@
+﻿<div class="card">
+    <span class="badge badge-pill bg-primary">PRESUPUESTO</span>
+    <div class="card-body">
+        <div class="row justify-content-center">
+            <div class="col-12" id="divDataTable">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Crear Presupuesto -->
+<div class="modal" id="ModalNuevo" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white text-center">
+                <h5 class="modal-title">NUEVO PRESUPUESTO</h5>
+                <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="tipo_gasto" class="form-label">Tipo de Gasto</label>
+                            <select class="form-select" id="ddlTipoGasto">
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="monto" class="form-label">Monto</label>
+                            <input type="number" class="form-control" id="txtMonto" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="mes" class="form-label">Mes</label>
+                            <select class="form-select" id="ddlMes">
+                                <option value="1">Enero</option>
+                                <option value="2">Febrero</option>
+                                <option value="3">Marzo</option>
+                                <option value="4">Abril</option>
+                                <option value="5">Mayo</option>
+                                <option value="6">Junio</option>
+                                <option value="7">Julio</option>
+                                <option value="8">Agosto</option>
+                                <option value="9">Septiembre</option>
+                                <option value="10">Octubre</option>
+                                <option value="11">Noviembre</option>
+                                <option value="12">Diciembre</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="año" class="form-label">Año</label>
+                            <select class="form-select" id="txtAño">
+                                @for (int i = 2015; i <= DateTime.Now.Year + 1; i++)
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <button class="btn btn-success" onclick="GuardarPresupuesto()"><i class="fas fa-check me-1"></i> GUARDAR</button>
+                        <button class="btn btn-dark" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i> CANCELAR</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function DataTable() {
+            $('#divDataTable').empty();
+            $('#divDataTable').load('@Url.Action("DataTable")', function () {
+                var size = window.innerHeight - 150;
+                TableNoSearch('#tblDatos', size);
+            });
+        }
+
+        function ShowModalNuevo() {
+            ListarTipoGasto();
+            $('#ModalNuevo').modal('show');
+        }
+
+        function GuardarPresupuesto() {
+            var id_tipo_gasto = $('#ddlTipoGasto').val();
+            var monto = $('#txtMonto').val();
+            var mes = $('#ddlMes').val();
+            var año = $('#txtAño').val();
+
+            // Validación de campos vacíos
+            if (!monto) {
+                Alert('El campo Monto no puede estar vacío');
+                return;
+            }
+            if (!mes) {
+                Alert('El campo Mes no puede estar vacío');
+                return;
+            }
+            if (!año) {
+                Alert('El campo Año no puede estar vacío');
+                return;
+            }
+
+            // Enviar los datos mediante POST
+            $.post('@Url.Action("Guardar", "Presupuesto")',
+            {
+                id_tipo_gasto,
+                monto,
+                mes,
+                año,
+                estado: 1
+            },
+            function (response) {
+                if (response.resultado) {
+                    $('#ModalNuevo').modal('hide');
+                    Notify('Presupuesto guardado correctamente.', 'success');
+                    DataTable();
+                } else {
+                    Alert('Error: ' + response.descripcion);
+                }
+            });
+        }
+
+        function EliminarPresupuesto(id_presupuesto, tipo_gasto, monto) {
+            Confirm('¿Desea eliminar el presupuesto de ' + tipo_gasto + ' con monto de Q' + monto + '?', function () {
+                $.post('@Url.Action("Eliminar", "Presupuesto")', { id_presupuesto }, function (response) {
+                    if (response.resultado) {
+                        Notify('Presupuesto eliminado correctamente.', 'success');
+                        DataTable();
+                    } else {
+                        Alert('Error: ' + response.descripcion);
+                    }
+                });
+            });
+        }
+
+        function llenarSelect(selector, lista, valueField, textField) {
+            const select = $(selector);
+            select.find('option:not(:first)').remove();
+            $.each(lista, function (i, item) {
+                console.log(i)
+                console.log(item.nombre)
+                select.append(
+                    $('<option>', {
+                        value: item[valueField],
+                        text: item[textField]
+                    })
+                );
+            });
+        }
+
+        function ListarTipoGasto() {
+            $.post('@Url.Action("TipoGasto")', function (response) {
+                llenarSelect('#ddlTipoGasto', response, 'id_tipo_gasto', 'descripcion');
+            });
+        }
+
+        $(document).ready(function () {
+            DataTable();
+        });
+
+    </script>
+}

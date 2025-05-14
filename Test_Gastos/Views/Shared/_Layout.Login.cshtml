@@ -1,0 +1,20 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GASTOS</title>
+    <partial name="_Styles" />
+    <link rel="stylesheet" href="~/css/site.login.css" asp-append-version="true" />
+    @await RenderSectionAsync("Head", required: false)
+</head>
+<body>
+    <div class="container-fluid">
+        @RenderBody()
+    </div>
+    <partial name="_Scripts" />
+    <partial name="_Alert" />
+    <partial name="_Toast" />
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

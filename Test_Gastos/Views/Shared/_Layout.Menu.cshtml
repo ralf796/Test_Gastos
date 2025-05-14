@@ -1,0 +1,56 @@
+﻿@using Layers;
+@using Test_Gastos.Models;
+@using Test_Gastos;
+@{
+    List<Usuario_BE> Menu = Context.Session.Get<List<Usuario_BE>>(SessionKeys.Menu) ?? new List<Usuario_BE>();
+    List<Usuario_BE> MenuPrincipal = Menu.Where(x => x.CODPADRE == 0).ToList();
+    List<Usuario_BE> MenuSecundario;
+    UserToken Usuario = new UserToken(Context.User);
+}
+
+<div class="card cardMenu bg-transparent">
+    <div class="card-body text-white p-1">
+        <div class="row">
+            <div class="col-12 col-md-8 offset-md-2 text-center d-none">
+                <img src="~/img/logos/logo_light.png" class="img-fluid p-2 imgLogo" alt="Logo Oriflame" />
+            </div>
+            <div class="col-12 mb-1">
+                <div class="profile">
+                    <img src="@Usuario.PathFoto" id="imgProfile">
+                    <div class="ms-2 mt-1">
+                        <p class="m-0 p-0 fw-bold"><i class="fad fa-user me-1"></i>@Usuario.primer_nombre @Usuario.primer_apellido</p>
+                        <p class="m-0 p-0"><small><i class="fa fa-circle text-success me-1"></i> GASTOS</small></p>
+                        <p class="m-0 p-0 fw-bold"><i class="fas fa-home-lg-alt"></i> <a asp-action="Index" asp-controller="Home" class="text-white hvr-grow" style="text-decoration:none" menu-id="0" menu-padre="0" onclick="DesmarcarMenuActivo()">DASHBOARD</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="accordion accordion-flush bg-transparent" id="accordionMenu">
+            <div class="accordion-item bg-transparent">
+                <h2 class="accordion-header  bg-transparent" id="@string.Concat("flush-heading","Usuario")" menu-id="1">
+                    <a class="list-group-item  bg-transparent text-white list-group-item-action border-0 ps-3" asp-action="Index" asp-controller="Usuario" menu-id="Index" menu-padre="0" style="font-size:16px; font-weight:normal"><i class="fas fa-chevron-right"></i> Usuarios</a>
+                </h2>
+            </div>
+            <div class="accordion-item bg-transparent">
+                <h2 class="accordion-header  bg-transparent" id="@string.Concat("flush-heading","TipoGasto")" menu-id="2">
+                    <a class="list-group-item  bg-transparent text-white list-group-item-action border-0 ps-3" asp-action="Index" asp-controller="TipoGasto" menu-id="Index" menu-padre="0" style="font-size:16px; font-weight:normal"><i class="fas fa-chevron-right"></i> Tipo de Gasto</a>
+                </h2>
+            </div>
+            <div class="accordion-item bg-transparent">
+                <h2 class="accordion-header  bg-transparent" id="@string.Concat("flush-heading","FondoMonetario")" menu-id="3">
+                    <a class="list-group-item  bg-transparent text-white list-group-item-action border-0 ps-3" asp-action="Index" asp-controller="FondoMonetario" menu-id="Index" menu-padre="0" style="font-size:16px; font-weight:normal"><i class="fas fa-chevron-right"></i> Fondo Monetario</a>
+                </h2>
+            </div>
+            <div class="accordion-item bg-transparent">
+                <h2 class="accordion-header  bg-transparent" id="@string.Concat("flush-heading","Presupuesto")" menu-id="4">
+                    <a class="list-group-item  bg-transparent text-white list-group-item-action border-0 ps-3" asp-action="Index" asp-controller="Presupuesto" menu-id="Index" menu-padre="0" style="font-size:16px; font-weight:normal"><i class="fas fa-chevron-right"></i> Presupuesto</a>
+                </h2>
+            </div>
+        </div>
+        <div class="row mt-5 " id="accordionMenuFooter">
+            <div class="col-12">
+                <button type="button" class="btn nav-link btn-danger btn-rounded list-group-item list-group-item-action border-0 text-center" data-url="@Url.Action("Out", "Login")" id="bntSalir"><i class="fad fa-times"></i> CERRAR SESION</button>
+            </div>
+        </div>
+    </div>
+</div>

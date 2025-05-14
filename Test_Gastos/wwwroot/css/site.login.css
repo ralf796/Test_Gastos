@@ -1,0 +1,18 @@
+﻿
+#cardHeader {
+    background-image: linear-gradient(180deg, #9fb7f5 0, #6c90d8 50%, #2c6bbb 100%);
+    border-radius: 30px;
+}
+
+/*https://mybrandnewlogo.com/color-gradient-generator*/
+
+/*body {
+    background-image: radial-gradient(circle at 50% 50%, #98dcea 0, #78c9dc 25%, #50b3cc 50%, #0b9ebd 75%, #008bb0 100%);
+}*/
+
+body, html {
+    height: 100%;
+    background-repeat: no-repeat;
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('../img/background/impresion-azul-con-laptop-y-espacio-de-copia.jpg') no-repeat center center fixed;
+    background-size: 100% 100%;
+}

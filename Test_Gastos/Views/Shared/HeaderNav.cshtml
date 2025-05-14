@@ -1,0 +1,53 @@
+﻿@using Layers;
+@using Test_Gastos.Models;
+@using Test_Gastos;
+@{
+    List<Usuario_BE> Menu = Context.Session.Get<List<Usuario_BE>>(SessionKeys.Menu);
+    List<Usuario_BE> MenuPrincipal = Menu.Where(x => x.CODPADRE == 0).ToList();
+    List<Usuario_BE> MenuSecundario;
+    UserToken Usuario = new UserToken(Context.User);
+}
+
+<style>
+    .submenuClass:focus {
+        background-color: dimgray;
+        color: red;
+    }
+
+</style>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <img src="~/img/logos/logo_car.png" width="150px" height="100px" alt="Logo" class="rounded d-none" />
+
+        <img src="@Usuario.PathFoto" width="50" height="50" class="rounded-circle">
+        <div class="ms-2 mt-1">
+            <p class="m-0 p-0 fw-bold text-white"><i class="fad fa-user me-1"></i>@Usuario.primer_nombre</p>
+        </div>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto ms-4 mb-lg-0">
+                @foreach (var menu in MenuPrincipal.OrderBy(x => x.ORDEN).ToList())
+                {
+                    MenuSecundario = Menu.Where(x => x.CODPADRE == menu.CODMENU).ToList();
+                    if (MenuSecundario.Count > 0)
+                    {
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle fw-bold text-white h6 submenuClass" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                @menu.nombre
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown" style="border:1px solid white; width:230px">
+                                @foreach (var submenu in MenuSecundario.OrderBy(x => x.ORDEN).ToList())
+                                {
+                                    <a class="list-group-item list-group-item-action border-0 w-100" asp-action="Index" asp-controller="@submenu.LINK" menu-id="@submenu.CODMENU" menu-padre="@submenu.CODPADRE"><i class="fa @submenu.ICONO me-1"></i>@submenu.nombre</a>
+                                }
+                            </ul>
+                        </li>
+                    }
+                }
+            </ul>
+            <form class="d-flex">
+                <button type="button" class="btn btn-danger ms-1" data-url="@Url.Action("Out","Login")" id="bntSalir">Salir</button>
+            </form>
+        </div>
+    </div>
+</nav>

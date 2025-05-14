@@ -1,0 +1,15 @@
+﻿@using Test_Gastos;
+@{
+    string Mensaje = string.Empty;
+    if (Context.Session.Get<string>(SessionKeys.Toast) != null)
+    {
+        Mensaje = Context.Session.Get<string>(SessionKeys.Toast);
+        Context.Session.Remove(SessionKeys.Toast);
+    }
+    if (!string.IsNullOrEmpty(Mensaje))
+    {
+        <script type = "text/javascript">
+            @Html.Raw(Mensaje)
+        </script>
+    }
+}

@@ -1,0 +1,164 @@
+﻿<div class="card">
+    <span class="badge badge-pill bg-primary">TIPO DE GASTO</span>
+    <div class="card-body">
+        <div class="row justify-content-center">
+            <div class="col-12 col-sm-12 col-md-12 col-lg-10 col-xl-8 col-xxl-6" id="divDataTable">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="ModalNuevo" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white text-center ">
+                <h5 class="modal-title">NUEVO TIPO DE GASTO</h5>
+                <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="codigo" class="form-label">Código</label>
+                            <input type="text" class="form-control" id="txtCodigo" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="descripcion" class="form-label">Descripción</label>
+                            <input type="text" class="form-control" id="txtDescripcion" required>
+                        </div>
+                    </div>
+                    <div class="card-footer text-center text-md-center">
+                        <button class="btn btn-success" onclick="Guardar()"><i class="fad fa-check me-1"></i> GUARDAR</button>
+                        <button class="btn btn-dark" data-bs-dismiss="modal"><i class="fad fa-times me-1"></i> CANCELAR</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="ModalEditar" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white text-center">
+                <h5 class="modal-title">EDITAR TIPO DE GASTO</h5>
+                <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="card">
+                    <div class="card-body">
+                        <input type="hidden" id="txtId">
+                        <div class="mb-3">
+                            <label for="txtCodigo" class="form-label">Código</label>
+                            <input type="text" class="form-control" id="txtCodigoEdit" maxlength="13" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="txtDescripcion" class="form-label">Descripción</label>
+                            <input type="text" class="form-control" id="txtDescripcionEdit" required>
+                        </div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <button class="btn btn-success" onclick="Modificar()"><i class="fas fa-save me-1"></i> ACTUALIZAR</button>
+                        <button class="btn btn-dark" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i> CANCELAR</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        function DataTable() {
+            $('#divDataTable').empty();
+            $('#divDataTable').load('@Url.Action("DataTable")', function () {
+                var size = window.innerHeight - 150;
+                TableNoSearch('#tblDatos', size);
+            });
+        }
+
+        function ShowModalNuevo(){
+            $('#ModalNuevo').modal('show');
+        }
+
+        function Guardar() {
+            var codigo = $('#txtCodigo').val();
+            var descripcion = $('#txtDescripcion').val();
+
+            if (!codigo) {
+                Alert('El campo Código no puede estar vacío');
+                return;
+            }
+            if (!descripcion) {
+                Alert('El campo Descripción no puede estar vacío');
+                return;
+            }
+            $.post('@Url.Action("Guardar")',
+            {
+                codigo, descripcion
+            },
+            function (response) {
+                if (response.resultado) {
+                    $('#ModalNuevo').modal('hide');
+                    Notify('Tipo de Gasto creado correctamente.');
+                    DataTable();
+                } else {
+                    Alert('Error: ' + response.descripcion);
+                }
+            });
+        }
+
+        function ShowModalModificar(id, codigo, descripcion) {
+            $('#txtId').val(id);
+            $('#txtCodigoEdit').val(codigo);
+            $('#txtDescripcionEdit').val(descripcion);
+            $('#ModalEditar').modal('show');
+        }
+
+        function Modificar() {
+            var id_tipo_gasto = $('#txtId').val();
+            var codigo = $('#txtCodigoEdit').val();
+            var descripcion = $('#txtDescripcionEdit').val();
+
+            if (!codigo) {
+                Alert('El campo Código no puede estar vacío');
+                return;
+            }
+            if (!descripcion) {
+                Alert('El campo Descripción no puede estar vacío');
+                return;
+            }
+            $.post('@Url.Action("Modificar")',
+            {
+                id_tipo_gasto, codigo, descripcion
+            },
+            function (response) {
+                if (response.resultado) {
+                    $('#ModalEditar').modal('hide');
+                    Notify('tipo de Gasto actualizado correctamente.', 'success');
+                    DataTable();
+                } else {
+                    Alert(response.descripcion);
+                }
+            });
+        }
+
+        function Eliminar(id_tipo_gasto, codigo, descripcion) {
+            Confirm('Se le dará de baja al tipo de gasto \nCódigo: ' + codigo+ '\nDescripción:'+descripcion+'. \n¿Quieres continuar?', function () {
+                $.post('@Url.Action("Eliminar")', { id_tipo_gasto }, function (response) {
+                    if (response.resultado) {
+                        Notify('Se le dió de baja correctamente.', 'success');
+                        DataTable();
+                    }
+                    else
+                        Notify(response.descripcion, 'danger');
+                });
+            });
+        }
+
+        $(document).ready(function () {
+            DataTable();
+        });
+    </script>
+}

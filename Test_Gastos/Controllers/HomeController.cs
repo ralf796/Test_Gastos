@@ -1,10 +1,10 @@
-using System.Diagnostics;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 using Test_Gastos.Models;
-
 namespace Test_Gastos.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : SessionController
     {
         private readonly ILogger<HomeController> _logger;
 
@@ -12,14 +12,11 @@ namespace Test_Gastos.Controllers
         {
             _logger = logger;
         }
-
+        [Authorize]
         public IActionResult Index()
         {
-            return View();
-        }
-
-        public IActionResult Privacy()
-        {
+            UserToken UsuarioActivo = new UserToken(HttpContext.User);
+            ViewBag.UsuarioActivo = UsuarioActivo;
             return View();
         }
 
@@ -28,5 +25,16 @@ namespace Test_Gastos.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+        /*
+        public JsonResult Grafica_1()
+        {
+            List<Reportes_BE> lista = new List<Reportes_BE>();
+            lista = PRINT_Reportes_BLL.Grafica(new Reportes_BE { tipo = 8 });
+            if (lista.Count == 0)
+                lista.Add(new Reportes_BE { vendedor = "SIN VENTAS" });
+            return Json(lista);
+        }        
+        */
     }
 }

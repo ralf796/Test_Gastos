@@ -1,0 +1,39 @@
+﻿@using Layers;
+@model List<Tipo_Gasto_BE>
+
+<div class="input-group bg-oriflame-gray rounded-pill p-0">
+    <button class="btn btn-primary" onclick="ShowModalNuevo()"><i class="fad fa-search-plus me-2"></i> Nuevo</button>
+</div>
+<table class="table table-bordered table-striped table-hover table-sm w-100" id="tblDataTable">
+    <thead>
+        <tr>
+            <th class="align-middle text-center"></th>
+            <th class="align-middle text-center">CÓDIGO</th>
+            <th class="align-middle text-center">DESCRIPCIÓN</th>
+            <th class="align-middle text-center">ESTADO</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var row in Model)
+        {
+            <tr>
+                <td class="align-middle text-center">
+                    <i class="fas fa-edit text-primary h5 me-2 hvr-grow" title="Editar" onclick="ShowModalModificar('@row.id_tipo_gasto', '@row.codigo', '@row.descripcion')"></i>
+                    <i class="fas fa-times text-danger h5 hvr-grow" title="Eliminar" onclick="Eliminar('@row.id_tipo_gasto','@row.codigo','@row.descripcion')"></i>
+                </td>
+                <td class="align-middle text-center">@row.codigo</td>
+                <td class="align-middle">@row.descripcion</td>
+                <td class="align-middle text-center">
+                    @if (row.estado == 1)
+                    {
+                        <i class="fas fa-check-circle text-success"></i>
+                    }
+                    else
+                    {
+                        <i class="fas fa-times-circle text-danger"></i>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

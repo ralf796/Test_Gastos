@@ -1,0 +1,138 @@
+﻿@using Layers
+@using Test_Gastos
+@using Test_Gastos.Models;
+@{
+    List<Usuario_BE> Menu = Context.Session.Get<List<Usuario_BE>>(SessionKeys.Menu) ?? new List<Usuario_BE>();
+    List<Usuario_BE> MenuPrincipal = Menu.Where(x => x.CODPADRE == 0).ToList();
+    List<Usuario_BE> MenuSecundario;
+    UserToken Usuario = new UserToken(Context.User);
+}
+
+<header class="fixed-top fixed-extra">
+    <nav class="navbar navbar-expand navbar-light bg-light shadow-sm">
+        <div class="container-fluid">
+            <div class="d-flex flex-row w-100 justify-content-between align-self-center align-items-center">
+                <div class="d-flex flex-even">
+                    <ul class="navbar-nav">
+                        <li class="nav-item cursor d-md-none">
+                            <div class="d-flex align-items-center align-self-center" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
+                                <i class="fal fa-bars fa-2x text-primary"></i>
+                            </div>
+                        </li>                        
+                    </ul>
+                </div>
+                <div class="d-flex flex-even">
+                    <ul class="navbar-nav mx-auto">
+                        <li class="nav-item w-100 text-center">
+                            <a class="nav-link">
+                                <img src="https://distribuidorarepuestoseleden.com/varios/codemind_icono_blue.png" style="color: white;" height="30" alt="Logo" class="logo-nav">
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="d-flex flex-even">
+                    <div class="d-flex align-items-center align-self-center">
+                        <a asp-action="Out" asp-controller="Login">
+                            <i class="fal fa-sign-out-alt fa-2x text-primary"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+    <div class="offcanvas-header bg-primary text-white">
+        <div class="row">
+            <div class="col-12 p-0">
+                <div class="d-flex">
+                    <div class="profile">
+                        <img src="@Usuario.PathFoto">
+                        <div class="ms-2 mt-1">
+                            <p class="m-0 p-0 fw-bold"><i class="fad fa-user me-1"></i>@Usuario.primer_nombre @Usuario.primer_apellido</p>
+                            <p class="m-0 p-0 fw-bold"><i class="fas fa-circle text-success border border-white rounded-pill"></i> PRINTLINE</p>
+                            <p class="m-0 p-0 fw-bold"><i class="fas fa-home-lg-alt"></i> <a asp-action="Index" asp-controller="Home" class="text-white hvr-grow" style="text-decoration:none" menu-id="0" menu-padre="0">DASHBOARD</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 mt-2 p-0 text-center d-none">
+                <div class="row">
+                    <div class="col-3" data-bs-toggle="tooltip" title="Carro de Compras">
+                        <a class="nav-link text-dark p-0" asp-action="Index" asp-controller="CarroDeCompras">
+                            <small class="text-white d-block mx-auto text-center">Compra en Línea</small>
+                        </a>
+                    </div>
+                    <div class="col-3" data-bs-toggle="tooltip" title="Mis Títulos">
+                        <a class="nav-link text-dark p-0" asp-action="MisTitulos" asp-controller="Perfil">
+                            <small class="text-white d-block mx-auto text-center">Mis Títulos</small>
+                        </a>
+                    </div>
+                    <div class="col-3" data-bs-toggle="tooltip" title="E-Profile">
+                        <a class="nav-link text-dark p-0" asp-action="Index" asp-controller="Perfil">
+                            <small class="text-white d-block mx-auto text-center">E-Profile</small>
+                        </a>
+                    </div>
+                    <div class="col-3" data-bs-toggle="tooltip" title="Salir">
+                        <a class="nav-link text-dark p-0" asp-action="Out" asp-controller="Login">
+                            <small class="text-white d-block mx-auto text-center">Salir</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button type="button" class="btn-close text-reset text-white" data-bs-dismiss="offcanvas"><i class="fal fa-bars fa-2x text-white h3 pe-2"></i></button>
+    </div>
+    <div class="offcanvas-body">
+        <div class="list-group bg-white list-group-flush shadow-sm">
+            <div class="accordion accordion-flush d-block d-md-none" id="accordionMenuMain">
+                <div class="accordion-item">
+                    @foreach (var menu in MenuPrincipal)
+                    {
+                        MenuSecundario = Menu.Where(x => x.CODPADRE == menu.CODMENU).ToList();
+                        if (menu.tipo != 3)
+                        {
+                            <div class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="@string.Concat("#flush-collapse_",menu.CODMENU)" aria-expanded="false" aria-controls="@string.Concat("flush-collapse_",menu.CODMENU)">
+                                    <i class="@menu.ICONO me-1"></i>  @menu.nombre
+                                </button>
+                            </div>
+                            @foreach (var submenu in MenuSecundario)
+                            {
+                                <div id="@string.Concat("flush-collapse_",menu.CODMENU)" class="accordion-collapse collapse" data-bs-parent="#accordionMenuMain_@submenu.CODMENU">
+                                    <div class="accordion-body p-0">
+                                        <div class="list-group list-group-flush">
+                                            <div class="list-group-item border-0 py-3">
+                                                <a class="text-decoration-none ps-3" asp-action="Index" asp-controller="@submenu.LINK"><i class="@submenu.ICONO me-1"></i>@submenu.nombre</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        @if (menu.tipo == 3)
+                        {
+                            <div class="accordion-header">
+                                <h2 class="accordion-header  bg-transparent" id="@string.Concat("flush-heading",menu.CODMENU)" menu-id="@menu.CODMENU">
+                                    <a class="list-group-item list-group-item-action border-0 ps-3" asp-action="Index" asp-controller="@menu.LINK" menu-id="@menu.CODMENU" menu-padre="@menu.CODPADRE" style="font-size:16px; font-weight:normal"><i class="@menu.ICONO me-1 h5"></i>@menu.nombre</a>
+                                </h2>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 my-3 text-center d-none">
+        <a href="https://es-la.facebook.com/Oriflame.Oficial.CA/" rel="noopener noreferrer" target="_blank" class="text-decoration-none mx-1" data-bs-toggle="tooltip" title="Síguenos en Facebook">
+            <img src="https://w7.pngwing.com/pngs/203/864/png-transparent-computer-icons-graphics-facebook-social-media-facebook-blue-text-trademark-thumbnail.png" alt="Facebook" class="btn-social-main" />
+        </a>
+        <a href="https://www.instagram.com/somos.oriflame" rel="noopener noreferrer" target="_blank" class="text-decoration-none mx-1" data-bs-toggle="tooltip" title="Síguenos en Instagram">
+            <img src="~/img/modules/login/IN.png" alt="Instagram" class="btn-social-main" />
+        </a>
+        <a href="https://www.youtube.com/user/oriflameca" rel="noopener noreferrer" target="_blank" class="text-decoration-none mx-1" data-bs-toggle="tooltip" title="Suscríbete a nuestro canal de Youtube">
+            <img src="~/img/modules/login/YT.png" alt="Youtube" class="btn-social-main" />
+        </a>
+    </div>
+</div>

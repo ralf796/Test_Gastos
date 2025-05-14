@@ -1,0 +1,68 @@
+﻿@model Test_Gastos.Models.LoginViewModel
+@{
+    Layout = "_Layout.Login";
+    ViewData["Title"] = "Login";
+}
+<form method="post">
+    <div class="center-login">
+        <div class="row">
+            <div class="col-12 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
+                <div class="row">
+                    <div class="col-12 col-md-10 offset-md-1 col-lg-10 offset-lg-1 col-xxl-8 offset-xxl-2">
+                        <div class="card " id="cardHeader">
+                            <div class="card-logo"></div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-12 mt-2">
+                                        <p class="text-center fw-bold h4 text-white">TEST GASTOS</p>
+                                    </div>
+                                    <div class="col-12 mt-2">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control text-center" asp-for="username" placeholder="" required>
+                                            <label for="floatingPassword" style="color:gray">USUARIO</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 mt-2">
+                                        <div class="form-floating">
+                                            <input type="password" class="form-control text-center" asp-for="password" placeholder="" required>
+                                            <label for="floatingPassword" style="color:gray">CONTRASEÑA</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 mt-2 text-center">
+                                        <button type="submit" class="btn btn-success rounded me-2 ms-2">
+                                            INGRESAR
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+@section Scripts {
+    <script type="text/javascript">
+        $('#recoveryPass').on('click', function () {
+            let usuario = $('#username').val();
+
+            if (usuario == null || usuario == undefined || usuario == '') {
+                Alert('Ingrese su usuario para completar la solicitud', NotifyIcon.warning, function () {                   
+                    $('#username').focus();
+                     $('#username').select();
+                });
+            }
+            else {
+
+                $.get('@Url.Action("RequestResetPassword")', { usuario }, function (result) {
+                    if (result.resultado) {
+                        Alert(result.descripcion, NotifyIcon.success);
+                    } else {
+                        Alert(result.descripcion, NotifyIcon.error);
+                    }
+                });
+            }
+        });
+    </script>
+}

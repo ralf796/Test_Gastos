@@ -1,0 +1,309 @@
+﻿<div class="card">
+    <span class="badge badge-pill bg-primary">USUARIOS</span>
+    <div class="card-body" id="divDataTable">
+    </div>
+</div>
+
+<div class="modal" id="ModalUsuario" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white text-center ">
+                <h5 class="modal-title">NUEVO USUARIO</h5>
+                <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="identificacion" class="form-label">Identificación</label>
+                            <input type="text" class="form-control" id="txtIdentificacion" onkeypress="return InputNumbers(event)" maxlength="13" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label">Nombre</label>
+                            <input type="text" class="form-control" id="txtNombre" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="apellido" class="form-label">Apellido</label>
+                            <input type="text" class="form-control" id="txtApellido" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="usuario" class="form-label">Usuario</label>
+                            <input type="text" class="form-control" id="txtUsuario" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Contraseña</label>
+                            <input type="text" class="form-control" id="txtPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
+                            <input type="date" class="form-control" id="txtFechaNacimiento" value="2000-01-01" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="direccion" class="form-label">Dirección</label>
+                            <input type="text" class="form-control" id="txtDireccion" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="correo" class="form-label">Correo</label>
+                            <input type="email" class="form-control" id="txtCorreo" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="telefono" class="form-label">Teléfono</label>
+                            <input type="text" class="form-control" id="txtTelefono" onkeypress="return InputNumbers(event)" maxlength="8" placeholder="99999999" required>
+                        </div>
+                    </div>
+                    <div class="card-footer text-center text-md-center">
+                        <button class="btn btn-success" onclick="Guardar()"><i class="fad fa-check me-1"></i> GUARDAR</button>
+                        <button class="btn btn-dark" data-bs-dismiss="modal"><i class="fad fa-times me-1"></i> CANCELAR</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="ModalEditarUsuario" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white text-center">
+                <h5 class="modal-title">EDITAR USUARIO</h5>
+                <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="card">
+                    <div class="card-body">
+                        <input type="hidden" id="txtIdUsuarioEdit">
+                        <div class="mb-3">
+                            <label for="txtIdentificacion" class="form-label">Identificación</label>
+                            <input type="text" class="form-control" id="txtIdentificacionEdit" maxlength="13" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="txtNombre" class="form-label">Nombre</label>
+                            <input type="text" class="form-control" id="txtNombreEdit" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="txtApellido" class="form-label">Apellido</label>
+                            <input type="text" class="form-control" id="txtApellidoEdit" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="txtUsuario" class="form-label">Usuario</label>
+                            <input type="text" class="form-control" id="txtUsuarioEdit" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="txtFechaNacimiento" class="form-label">Fecha de Nacimiento</label>
+                            <input type="date" class="form-control" id="txtFechaNacimientoEdit" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="txtDireccion" class="form-label">Dirección</label>
+                            <input type="text" class="form-control" id="txtDireccionEdit" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="txtCorreo" class="form-label">Correo</label>
+                            <input type="email" class="form-control" id="txtCorreoEdit" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="txtTelefono" class="form-label">Teléfono</label>
+                            <input type="text" class="form-control" id="txtTelefonoEdit" maxlength="8" placeholder="99999999" required>
+                        </div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <button class="btn btn-success" onclick="Modificar()"><i class="fas fa-save me-1"></i> ACTUALIZAR</button>
+                        <button class="btn btn-dark" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i> CANCELAR</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        function DataTable() {
+            $('#divDataTable').empty();
+            $('#divDataTable').load('@Url.Action("DataTable")', function () {
+                var size = window.innerHeight - 150;
+                TableNoSearch('#tblDatos', size);
+            });
+        }
+
+        function ShowModalNuevo(){
+            $('#ModalUsuario').modal('show');
+        }
+
+        function Guardar() {
+            var identificacion = $('#txtIdentificacion').val();
+            var nombre = $('#txtNombre').val();
+            var apellido = $('#txtApellido').val();
+            var usuario = $('#txtUsuario').val();
+            var password = $('#txtPassword').val();
+            var fecha_nacimiento = $('#txtFechaNacimiento').val();
+            var direccion = $('#txtDireccion').val();
+            var correo = $('#txtCorreo').val();
+            var telefono = $('#txtTelefono').val();
+
+            if (!identificacion) {
+                Alert('El campo Identificación no puede estar vacío');
+                return;
+            }
+            if (!nombre) {
+                Alert('El campo Nombre no puede estar vacío');
+                return;
+            }
+            if (!apellido) {
+                Alert('El campo Apellido no puede estar vacío');
+                return;
+            }
+            if (!usuario) {
+                Alert('El campo Usuario no puede estar vacío');
+                return;
+            }
+            if (!password) {
+                Alert('El campo Contraseña no puede estar vacío');
+                return;
+            }
+            if (!fecha_nacimiento) {
+                Alert('El campo Fecha de Nacimiento no puede estar vacío');
+                return;
+            }
+            if (!direccion) {
+                Alert('El campo Dirección no puede estar vacío');
+                return;
+            }
+            if (!correo) {
+                Alert('El campo Correo no puede estar vacío');
+                return;
+            }
+            if (!telefono) {
+                Alert('El campo Teléfono no puede estar vacío');
+                return;
+            }
+
+            $.post('@Url.Action("Guardar")',
+            {
+                identificacion,
+                nombre,
+                apellido,
+                usuario,
+                password,
+                fecha_nacimiento,
+                direccion,
+                correo,
+                telefono
+            },
+            function (response) {
+                if (response.resultado) {
+                    $('#ModalUsuario').modal('hide');
+                    Notify('Usuario creado correctamente.');
+                    DataTable();
+                } else {
+                    Alert('Error: ' + response.descripcion);
+                }
+            });
+        }
+
+        function ShowModalUsuario(id_usuario) {
+            $.post('@Url.Action("GetUsuario")', { id_usuario: id_usuario }, function (response) {
+                if (response.success) {
+                    $('#txtIdUsuarioEdit').val(response.data.id_usuario);
+                    $('#txtIdentificacionEdit').val(response.data.identificacion);
+                    $('#txtNombreEdit').val(response.data.nombre);
+                    $('#txtApellidoEdit').val(response.data.apellido);
+                    $('#txtUsuarioEdit').val(response.data.usuario);
+                    $('#txtFechaNacimientoEdit').val(response.data.fecha_nacimiento_string);
+                    $('#txtDireccionEdit').val(response.data.direccion);
+                    $('#txtCorreoEdit').val(response.data.correo);
+                    $('#txtTelefonoEdit').val(response.data.telefono);
+                    $('#ModalEditarUsuario').modal('show');
+                } else {
+                    alert('Error al obtener los datos: ' + response.message);
+                }
+            });
+        }
+
+        function Modificar() {
+            var id_usuario = $('#txtIdUsuarioEdit').val();
+            var identificacion = $('#txtIdentificacionEdit').val();
+            var nombre = $('#txtNombreEdit').val();
+            var apellido = $('#txtApellidoEdit').val();
+            var usuario = $('#txtUsuarioEdit').val();
+            var password = $('#txtPasswordEdit').val();
+            var fecha_nacimiento = $('#txtFechaNacimientoEdit').val();
+            var direccion = $('#txtDireccionEdit').val();
+            var correo = $('#txtCorreoEdit').val();
+            var telefono = $('#txtTelefonoEdit').val();
+
+            if (!identificacion) {
+                Alert('El campo Identificación no puede estar vacío');
+                return;
+            }
+            if (!nombre) {
+                Alert('El campo Nombre no puede estar vacío');
+                return;
+            }
+            if (!apellido) {
+                Alert('El campo Apellido no puede estar vacío');
+                return;
+            }
+            if (!usuario) {
+                Alert('El campo Usuario no puede estar vacío');
+                return;
+            }
+            if (!fecha_nacimiento) {
+                Alert('El campo Fecha de Nacimiento no puede estar vacío');
+                return;
+            }
+            if (!direccion) {
+                Alert('El campo Dirección no puede estar vacío');
+                return;
+            }
+            if (!correo) {
+                Alert('El campo Correo no puede estar vacío');
+                return;
+            }
+            if (!telefono) {
+                Alert('El campo Teléfono no puede estar vacío');
+                return;
+            }
+
+            $.post('@Url.Action("Modificar")',
+            {
+                id_usuario,
+                identificacion,
+                nombre,
+                apellido,
+                usuario,
+                password,
+                fecha_nacimiento,
+                direccion,
+                correo,
+                telefono
+            },
+            function (response) {
+                if (response.resultado) {
+                    $('#ModalEditarUsuario').modal('hide');
+                    Notify('Usuario actualizado correctamente.', 'success');
+                    DataTable();
+                } else {
+                    Alert(response.descripcion);
+                }
+            });
+        }
+
+        function Eliminar(id_usuario, nombre, apellido) {
+            Confirm('Se le dará de baja al usuario ' + nombre+ ' '+apellido+ '. \n¿Quieres continuar?', function () {
+                $.post('@Url.Action("Eliminar")', { id_usuario }, function (response) {
+                    if (response.resultado) {
+                        Notify('Se le dió de baja correctamente.', 'success');
+                        DataTable();
+                    }
+                    else
+                        Notify(response.descripcion, 'danger');
+                });
+            });
+        }
+
+        $(document).ready(function () {
+            DataTable();
+        });
+    </script>
+}

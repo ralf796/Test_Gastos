@@ -1,0 +1,176 @@
+﻿<div class="card">
+    <span class="badge badge-pill bg-primary">FONDO MONETARIO</span>
+    <div class="card-body">
+        <div class="row justify-content-center">
+            <div class="col-12 col-sm-12 col-md-12 col-lg-10 col-xl-8 col-xxl-6" id="divDataTable">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Crear Fondo Monetario -->
+<div class="modal" id="ModalNuevo" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white text-center">
+                <h5 class="modal-title">NUEVO FONDO MONETARIO</h5>
+                <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="descripcion" class="form-label">Descripción</label>
+                            <input type="text" class="form-control" id="txtDescripcion" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tipo_fondo" class="form-label">Tipo de Fondo</label>
+                            <select class="form-select" id="ddlTipoFondo">
+                                <option value="1">Caja Chica</option>
+                                <option value="2">Banco</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="saldo" class="form-label">Saldo</label>
+                            <input type="number" class="form-control" id="txtSaldo" required>
+                        </div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <button class="btn btn-success" onclick="Guardar()"><i class="fas fa-check me-1"></i> GUARDAR</button>
+                        <button class="btn btn-dark" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i> CANCELAR</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Editar Fondo Monetario -->
+<div class="modal" id="ModalEditar" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white text-center">
+                <h5 class="modal-title">EDITAR FONDO MONETARIO</h5>
+                <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="card">
+                    <div class="card-body">
+                        <input type="hidden" id="txtId">
+                        <div class="mb-3">
+                            <label for="descripcion" class="form-label">Descripción</label>
+                            <input type="text" class="form-control" id="txtDescripcionEdit" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tipo_fondo" class="form-label">Tipo de Fondo</label>
+                            <select class="form-select" id="ddlTipoFondoEdit">
+                                <option value="1">Caja Chica</option>
+                                <option value="2">Banco</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="saldo" class="form-label">Saldo</label>
+                            <input type="number" class="form-control" id="txtSaldoEdit" required>
+                        </div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <button class="btn btn-success" onclick="Modificar()"><i class="fas fa-save me-1"></i> ACTUALIZAR</button>
+                        <button class="btn btn-dark" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i> CANCELAR</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function DataTable() {
+            $('#divDataTable').empty();
+            $('#divDataTable').load('@Url.Action("DataTable")', function () {
+                var size = window.innerHeight - 150;
+                TableNoSearch('#tblDatos', size);
+            });
+        }
+
+        function ShowModalNuevo() {
+            $('#ModalNuevo').modal('show');
+        }
+
+        function Guardar() {
+            var descripcion = $('#txtDescripcion').val();
+            var id_tipo_fondo = $('#ddlTipoFondo').val();
+            var saldo = $('#txtSaldo').val();
+
+            if (!descripcion) {
+                Alert('El campo Descripción no puede estar vacío');
+                return;
+            }
+            if (!saldo) {
+                Alert('El campo Saldo no puede estar vacío');
+                return;
+            }
+
+            $.post('@Url.Action("Guardar")', { descripcion, id_tipo_fondo, saldo }, function (response) {
+                if (response.resultado) {
+                    $('#ModalNuevo').modal('hide');
+                    Notify('Fondo Monetario creado correctamente.');
+                    DataTable();
+                } else {
+                    Alert('Error: ' + response.descripcion);
+                }
+            });
+        }
+
+        function ShowModalModificar(id, descripcion, id_tipo_fondo, saldo) {
+            $('#txtId').val(id);
+            $('#txtDescripcionEdit').val(descripcion);
+            $('#ddlTipoFondoEdit').val(id_tipo_fondo);
+            $('#txtSaldoEdit').val(saldo);
+            $('#ModalEditar').modal('show');
+        }
+
+        function Modificar() {
+            var id_fondo = $('#txtId').val();
+            var descripcion = $('#txtDescripcionEdit').val();
+            var id_tipo_fondo = $('#ddlTipoFondoEdit').val();
+            var saldo = $('#txtSaldoEdit').val();
+
+            if (!descripcion) {
+                Alert('El campo Descripción no puede estar vacío');
+                return;
+            }
+            if (!saldo) {
+                Alert('El campo Saldo no puede estar vacío');
+                return;
+            }
+
+            $.post('@Url.Action("Modificar")', { id_fondo, descripcion, id_tipo_fondo, saldo }, function (response) {
+                if (response.resultado) {
+                    $('#ModalEditar').modal('hide');
+                    Notify('Fondo Monetario actualizado correctamente.', 'success');
+                    DataTable();
+                } else {
+                    Alert(response.descripcion);
+                }
+            });
+        }
+
+        function Eliminar(id_fondo, descripcion) {
+            Confirm('¿Deseas eliminar el fondo monetario "' + descripcion + '"?', function () {
+                $.post('@Url.Action("Eliminar")', { id_fondo }, function (response) {
+                    if (response.resultado) {
+                        Notify('Fondo Monetario eliminado correctamente.', 'success');
+                        DataTable();
+                    } else {
+                        Notify(response.descripcion, 'danger');
+                    }
+                });
+            });
+        }
+
+        $(document).ready(function () {
+            DataTable();
+        });
+    </script>
+}
