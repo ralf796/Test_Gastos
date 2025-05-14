@@ -1,0 +1,20 @@
+﻿@using Layers;
+@model List<Gasto_Detalle_BE>
+
+<table class="table table-bordered table-striped table-hover table-sm w-100" id="tblDataTableDetalle">
+    <thead>
+        <tr>
+            <th class="align-middle text-center">DESCRIPCIÓN</th>
+            <th class="align-middle text-center">MONTO</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var row in Model)
+        {
+            <tr>
+                <td class="align-middle text-center">@row.descripcion</td>
+                <td class="align-middle text-end pe-2">@row.monto.ToString("N2")</td>
+            </tr>
+        }
+    </tbody>
+</table>

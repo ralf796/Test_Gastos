@@ -1,0 +1,274 @@
+﻿<div class="card">
+    <span class="badge badge-pill bg-primary">GASTOS</span>
+    <div class="card-body">
+        <div class="row justify-content-center">
+            <div class="col-12" id="divDataTable">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="ModalNuevo" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white text-center">
+                <h5 class="modal-title">NUEVO GASTO</h5>
+                <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="nombre_comercio" class="form-label">Nombre de Comercio</label>
+                            <input type="text" class="form-control" id="txtNombreComercio" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tipo_documento" class="form-label">Tipo de Documento</label>
+                            <select class="form-select" id="ddlTipoDocumento">
+                                <option value="Comprobante">Comprobante</option>
+                                <option value="Factura">Factura</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="fondo_monetario" class="form-label">Fondo Monetario</label>
+                            <select class="form-select" id="ddlFondoMonetario">
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="observaciones" class="form-label">Observaciones</label>
+                            <textarea class="form-control" id="txtObservaciones" rows="2"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="detalle" class="form-label">Detalle de Gasto</label>
+                            <div id="detalleGasto">
+                                <div class="row mb-2">
+                                    <div class="col-6">
+                                        <select class="form-select tipo-gasto" id="ddlTipoGasto">
+                                        </select>
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="number" class="form-control monto" placeholder="Monto" min="0">
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn btn-info btn-sm" onclick="agregarDetalle()">Agregar Gasto</button>
+                        </div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <button class="btn btn-success" onclick="Guardar()"><i class="fas fa-check me-1"></i> GUARDAR</button>
+                        <button class="btn btn-dark" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i> CANCELAR</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="ModalDetalle" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white text-center">
+                <h5 class="modal-title">DETALLES</h5>
+                <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row justify-content-center">
+                            <div class="col-12" id="divDataTableDetalle">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <button class="btn btn-dark" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i> CERRAR</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function DataTable() {
+            $('#divDataTable').empty();
+            $('#divDataTable').load('@Url.Action("DataTable")', function () {
+                var size = window.innerHeight - 150;
+                TableNoSearch('#tblDataTable', size);
+            });
+        }
+
+        function DataTableDetalle(id_gasto_encabezado) {
+            $('#ModalDetalle').modal('show');
+            $('#divDataTableDetalle').empty();
+            $('#divDataTableDetalle').load('@Url.Action("DataTableDetalle")',{id_gasto_encabezado}, function () {
+                var size = window.innerHeight - 150;
+                setTimeout(function(){
+                    TableNoSearch('#tblDataTableDetalle', size);
+                },300)
+            });
+        }
+
+        function ShowModalNuevo() {
+            ListarFondo();
+            LimpiarModalGasto();
+            $('#ModalNuevo').modal('show');
+        }
+
+        function agregarDetalle() {
+            $.post('@Url.Action("TipoGasto")', function (response) {
+                if (response && response.length > 0) {
+                    let options = '';
+                    response.forEach(function (item) {
+                        options += `<option value="${item.id_tipo_gasto}">${item.descripcion}</option>`;
+                    });
+
+                    let detalleGasto = `
+                        <div class="row mb-2">
+                            <div class="col-6">
+                                <select class="form-select tipo-gasto">
+                                    ${options}
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <input type="number" class="form-control monto" placeholder="Monto" min="0">
+                            </div>
+                        </div>`;
+                    document.getElementById("detalleGasto").insertAdjacentHTML("beforeend", detalleGasto);
+                } else {
+                    Alert('No se encontraron tipos de gasto.');
+                }
+            }).fail(function () {
+                Alert('Error al obtener los tipos de gasto.');
+            });
+        }
+
+
+        function Guardar() {
+            var nombre_comercio = $('#txtNombreComercio').val();
+            var tipo_documento = $('#ddlTipoDocumento').val();
+            var id_fondo = $('#ddlFondoMonetario').val();
+            var observaciones = $('#txtObservaciones').val();
+
+            var detalles = [];
+            $('#detalleGasto .row').each(function () {
+                var id_tipo_gasto = $(this).find('.tipo-gasto').val();
+                var monto = $(this).find('.monto').val();
+
+                if (!monto || monto <= 0) {
+                    Alert('El campo Monto debe ser mayor a cero');
+                    return false;
+                }
+
+                detalles.push({ id_tipo_gasto: parseInt(id_tipo_gasto), monto: parseFloat(monto) });
+            });
+
+            if (!nombre_comercio) {
+                Alert('El campo Nombre de Comercio no puede estar vacío');
+                return;
+            }
+            if (detalles.length === 0) {
+                Alert('Debe ingresar al menos un detalle de gasto');
+                return;
+            }
+
+            var data = {
+                nombre_comercio: nombre_comercio,
+                tipo_documento: tipo_documento,
+                id_fondo: parseInt(id_fondo),
+                observaciones: observaciones,
+                detalles: detalles
+            };
+
+            $.post('@Url.Action("Guardar")', data, function (response) {
+                if (response.resultado) {
+                    $('#ModalNuevo').modal('hide');
+                    Notify('Gasto registrado correctamente.');
+                    DataTable();
+                } else {
+                    Alert('Error: ' + response.descripcion);
+                }
+            }).fail(function (xhr) {
+                Alert('Error de comunicación: ' + xhr.statusText);
+            });
+        }
+
+
+        function Eliminar(id_gasto, nombre_comercio) {
+            Confirm('¿Deseas eliminar el gasto de "' + nombre_comercio+ '"?', function () {
+                $.post('@Url.Action("Eliminar")', { id_gasto }, function (response) {
+                    if (response.resultado) {
+                        Notify('Gasto eliminado correctamente.', 'success');
+                        DataTable();
+                    } else {
+                        Notify(response.descripcion, 'danger');
+                    }
+                });
+            });
+        }
+
+        function llenarSelect(selector, lista, valueField, textField) {
+            const select = $(selector);
+            select.find('option:not(:first)').remove();
+            $.each(lista, function (i, item) {
+                console.log(i)
+                console.log(item.nombre)
+                select.append(
+                    $('<option>', {
+                        value: item[valueField],
+                        text: item[textField]
+                    })
+                );
+            });
+        }
+
+        function ListarFondo() {            
+            $('#ddlFondoMonetario').empty()
+            $.post('@Url.Action("FondoMonetario")', function (response) {
+                llenarSelect('#ddlFondoMonetario', response, 'id_fondo', 'descripcion');
+            });
+        }
+
+        function CargarTiposGasto() {
+            $('#ddlTipoGasto').empty()
+            $.post('@Url.Action("TipoGasto")', function (response) {
+                if (response && response.length > 0) {
+                    llenarSelect('#ddlTipoGasto', response, 'id_tipo_gasto', 'descripcion');
+                } else {
+                    Alert('Error al cargar los tipos de gasto.');
+                }
+            }).fail(function () {
+                Alert('Error de comunicación con el servidor.');
+            });
+        }
+
+        function LimpiarModalGasto() {
+            $('#txtNombreComercio').val('');
+            $('#txtObservaciones').val('');
+            $('#ddlTipoDocumento').prop('selectedIndex', 0);
+            $('#ddlFondoMonetario').prop('selectedIndex', 0);
+
+            $('#detalleGasto').empty();
+
+            let detalleInicial = `
+                <div class="row mb-2">
+                    <div class="col-6">
+                        <select class="form-select tipo-gasto" id="ddlTipoGasto">
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <input type="number" class="form-control monto" placeholder="Monto" min="0">
+                    </div>
+                </div>`;
+            $('#detalleGasto').append(detalleInicial);
+
+            CargarTiposGasto();
+        }
+
+ 
+        $(document).ready(function () {
+            DataTable();
+        });
+    </script>
+}

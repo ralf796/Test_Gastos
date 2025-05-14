@@ -1,0 +1,130 @@
+﻿<div class="card">
+    <span class="badge badge-pill bg-primary">DEPOSITOS</span>
+    <div class="card-body">
+        <div class="row justify-content-center">
+            <div class="col-12 col-sm-12 col-md-12 col-lg-10 col-xl-8 col-xxl-6" id="divDataTable">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="ModalNuevo" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white text-center">
+                <h5 class="modal-title">NUEVO DEPÓSITO</h5>
+                <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="ddlFondoMonetario" class="form-label">Fondo Monetario</label>
+                            <select class="form-select" id="ddlFondoMonetario">
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="txtMonto" class="form-label">Monto</label>
+                            <input type="number" class="form-control" id="txtMonto" placeholder="Ingrese el monto" min="0" required>
+                        </div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <button class="btn btn-success" onclick="Guardar()"><i class="fas fa-check me-1"></i> GUARDAR</button>
+                        <button class="btn btn-dark" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i> CANCELAR</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function DataTable() {
+            $('#divDataTable').empty();
+            $('#divDataTable').load('@Url.Action("DataTable")', function () {
+                var size = window.innerHeight - 150;
+                TableNoSearch('#tblDataTable', size);
+            });
+        }
+
+        function ShowModalNuevo() {
+            ListarFondo();
+            $('#ModalNuevo').modal('show');
+        }
+
+        function Guardar() {
+            var id_fondo = $('#ddlFondoMonetario').val();
+            var monto = $('#txtMonto').val();
+            if (!monto) {
+                Alert('El campo Monto no puede estar vacío');
+                return;
+            }
+            $.post('@Url.Action("Guardar")',{ id_fondo, monto },
+            function (response) {
+                if (response.resultado) {
+                    $('#ModalNuevo').modal('hide');
+                    Notify('Deposito guardado correctamente.', 'success');
+                    DataTable();
+                } else {
+                    Alert('Error: ' + response.descripcion);
+                }
+            });
+        }
+
+        function Eliminar(id_deposito, fondo_monetario, monto) {
+            Confirm('¿Desea eliminar el deposito de ' + fondo_monetario + ' con monto de Q' + monto + '?', function () {
+                $.post('@Url.Action("Eliminar")', { id_deposito }, function (response) {
+                    if (response.resultado) {
+                        Notify('Presupuesto eliminado correctamente.', 'success');
+                        DataTable();
+                    } else {
+                        Alert('Error: ' + response.descripcion);
+                    }
+                });
+            });
+        }
+
+        function llenarSelect(selector, lista, valueField, textField) {
+            const select = $(selector);
+            select.find('option:not(:first)').remove();
+            $.each(lista, function (i, item) {
+                console.log(i)
+                console.log(item.nombre)
+                select.append(
+                    $('<option>', {
+                        value: item[valueField],
+                        text: item[textField]
+                    })
+                );
+            });
+        }
+
+        function llenarSelect(selector, lista, valueField, textField) {
+            const select = $(selector);
+            select.find('option:not(:first)').remove();
+            $.each(lista, function (i, item) {
+                console.log(i)
+                console.log(item.nombre)
+                select.append(
+                    $('<option>', {
+                        value: item[valueField],
+                        text: item[textField]
+                    })
+                );
+            });
+        }
+
+        function ListarFondo() {
+            $('#ddlFondoMonetario').empty()
+            $.post('@Url.Action("FondoMonetario")', function (response) {
+                llenarSelect('#ddlFondoMonetario', response, 'id_fondo', 'descripcion');
+            });
+        }
+
+        $(document).ready(function () {
+            DataTable();
+        });
+
+    </script>
+}

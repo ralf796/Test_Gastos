@@ -1,5 +1,5 @@
 ﻿@using Layers;
-@model List<Presupuesto_BE>
+@model List<Deposito_BE>
 
 <div class="input-group bg-gastos-gray rounded-pill p-0">
     <button class="btn btn-primary" onclick="ShowModalNuevo()"><i class="fad fa-search-plus me-2"></i> Nuevo</button>
@@ -8,11 +8,10 @@
 <table class="table table-bordered table-striped table-hover table-sm w-100" id="tblDataTable">
     <thead>
         <tr>
-            <th class="align-middle text-center">ACCIONES</th>
-            <th class="align-middle text-center">TIPO DE GASTO</th>
-            <th class="align-middle text-center">MONTO</th>
-            <th class="align-middle text-center">MES</th>
-            <th class="align-middle text-center">AÑO</th>
+            <th class="align-middle text-center"></th>
+            <th class="align-middle text-center">FECHA</th>
+            <th class="align-middle text-center">FONDO MONETARIO</th>
+            <th class="align-middle text-center">USUARIO</th>
             <th class="align-middle text-center">ESTADO</th>
         </tr>
     </thead>
@@ -21,12 +20,11 @@
         {
             <tr>
                 <td class="align-middle text-center">
-                    <i class="fas fa-times text-danger h5 hvr-grow" title="Eliminar"onclick="Eliminar('@row.id_presupuesto', '@row.tipo_gasto', '@row.monto.ToString("N2")')"></i>
+                    <i class="fas fa-times text-danger h5 hvr-grow" title="Eliminar" onclick="Eliminar('@row.id_deposito', '@row.fondo_monetario', '@row.monto.ToString("N2")')"></i>
                 </td>
-                <td class="align-middle text-center">@row.tipo_gasto</td>
-                <td class="align-middle text-end pe-2">Q @row.monto.ToString("N2")</td>
-                <td class="align-middle text-center">@row.mes</td>
-                <td class="align-middle text-center">@row.anio</td>
+                <td class="align-middle text-center">@row.fecha.ToString("dd/MM/yyyy")</td>
+                <td class="align-middle text-start">@row.fondo_monetario</td>
+                <td class="align-middle text-center">@row.usuario</td>
                 <td class="align-middle text-center">
                     @if (row.estado == 1)
                     {

@@ -1,0 +1,138 @@
+﻿<div class="card">
+    <span class="badge badge-pill">GRÁFICOS</span>
+    <div class="card-body">
+        <div class="row justify-content-center">
+            <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3 col-xxl-2 d-flex align-content-center flex-wrap position-relative divFechas">
+                <label class="text-dark">DESDE:</label>
+                <input type="date" class="form-control text-center" id="txtFecha1" />
+            </div>
+            <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3 col-xxl-2 d-flex align-content-center flex-wrap position-relative divFechas">
+                <label class="text-dark">HASTA:</label>
+                <input type="date" class="form-control text-center" id="txtFecha2" />
+            </div>
+            <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-2 col-xxl-2 d-flex align-content-center flex-wrap position-relative">
+                <button class="btn btn-primary mt-3" onclick="DataDevexpressChart()"><i class="fas fa-sync"></i></button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="container mt-3">
+                <h4>Gráfico Comparativo de Presupuestos vs Ejecución</h4>
+                <div id="chartContainer" style="height: 400px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        function DataDevexpressChart() {
+            var fecha1 = $('#txtFecha1').val();
+            var fecha2 = $('#txtFecha2').val();
+
+            var customStore = new DevExpress.data.CustomStore({
+                load: function (loadOptions) {
+                    var d = $.Deferred();
+                    $.ajax({
+                        type: 'GET',
+                        url: '@Url.Action("DataDevexpress")',
+                        contentType: "application/json; charset=utf-8",
+                        dataType: 'json',
+                        data: { fecha1, fecha2 },
+                        cache: false,
+                        success: function (data) {
+                            var state = data["state"];
+                            if (state == 1) {
+                                data = JSON && JSON.parse(JSON.stringify(data)) || $.parseJSON(data);
+                                console.log(data);
+                                d.resolve(data);
+                            } else if (state == -1) {
+                                Alert(data["Message"]);
+                            }
+                        },
+                        error: function (jqXHR, exception) {
+                            getErrorMessage(jqXHR, exception);
+                        }
+                    });
+                    return d.promise();
+                }
+            });
+
+            // Crear el gráfico utilizando DevExpress Chart
+            $("#chartContainer").dxChart({
+                dataSource: customStore,
+                title: "Comparativo de Presupuesto vs Ejecución",
+                commonSeriesSettings: {
+                    argumentField: "tipo_gasto",
+                    type: "bar",
+                    label: {
+                        visible: true,
+                        position: "inside",
+                        font: {
+                            weight: 700,
+                            color: "#fff"
+                        }
+                    }
+                },
+                series: [
+                    {
+                        valueField: "monto_presupuestado",
+                        name: "Presupuestado",
+                        color: "rgba(54, 162, 235, 0.6)"
+                    },
+                    {
+                        valueField: "monto_ejecutado",
+                        name: "Ejecutado",
+                        color: "rgba(255, 99, 132, 0.6)"
+                    }
+                ],
+                argumentAxis: {
+                    label: {
+                        rotationAngle: -45,
+                        overlappingBehavior: "stagger"
+                    },
+                    title: "Tipo de Gasto"
+                },
+                valueAxis: {
+                    title: "Monto (Q)",
+                    label: {
+                        format: {
+                            type: "fixedPoint",
+                            precision: 2
+                        }
+                    }
+                },
+                tooltip: {
+                    enabled: true,
+                    format: {
+                        type: "fixedPoint",
+                        precision: 2
+                    },
+                    customizeTooltip: function (arg) {
+                        return {
+                            text: arg.seriesName + ": Q " + arg.valueText
+                        };
+                    }
+                },
+                legend: {
+                    visible: true,
+                    position: "bottom"
+                },
+                export: {
+                    enabled: true,
+                    fileName: "Grafico_Presupuesto_Ejecucion"
+                }
+            });
+        }
+
+
+        $(document).ready(function () {
+             const today = new Date().toISOString().split('T')[0];
+            $('#txtFecha1').val(today);
+            $('#txtFecha2').val(today);
+
+            console.log(1,typeof JSZip);  // Debería devolver "function"
+
+        });
+    </script>
+}

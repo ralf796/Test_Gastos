@@ -2,6 +2,37 @@
     <span class="badge badge-pill bg-primary">PRESUPUESTO</span>
     <div class="card-body">
         <div class="row justify-content-center">
+            <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3 col-xxl-2 d-flex align-content-center flex-wrap position-relative">
+                <label for="año" class="form-label">Año</label>
+                <select class="form-select" id="selAño">
+                    @for (int i = 2023; i <= DateTime.Now.Year + 1; i++)
+                    {
+                        <option value="@i">@i</option>
+                    }
+                </select>
+            </div>
+            <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3 col-xxl-2 d-flex align-content-center flex-wrap position-relative">
+                <label for="mes" class="form-label">Mes</label>
+                <select class="form-select" id="selMes">
+                    <option value="1">Enero</option>
+                    <option value="2">Febrero</option>
+                    <option value="3">Marzo</option>
+                    <option value="4">Abril</option>
+                    <option value="5">Mayo</option>
+                    <option value="6">Junio</option>
+                    <option value="7">Julio</option>
+                    <option value="8">Agosto</option>
+                    <option value="9">Septiembre</option>
+                    <option value="10">Octubre</option>
+                    <option value="11">Noviembre</option>
+                    <option value="12">Diciembre</option>
+                </select>
+            </div>            
+            <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-2 col-xxl-2 d-flex align-content-center flex-wrap position-relative">
+                <button class="btn btn-primary mt-4" onclick="DataTable()"><i class="fas fa-sync"></i></button>
+            </div>
+        </div>
+        <div class="row justify-content-center">
             <div class="col-12" id="divDataTable">
             </div>
         </div>
@@ -47,8 +78,8 @@
                         </div>
                         <div class="mb-3">
                             <label for="año" class="form-label">Año</label>
-                            <select class="form-select" id="txtAño">
-                                @for (int i = 2015; i <= DateTime.Now.Year + 1; i++)
+                            <select class="form-select" id="ddlAño">
+                                @for (int i = 2023; i <= DateTime.Now.Year + 1; i++)
                                 {
                                     <option value="@i">@i</option>
                                 }
@@ -56,7 +87,7 @@
                         </div>
                     </div>
                     <div class="card-footer text-center">
-                        <button class="btn btn-success" onclick="GuardarPresupuesto()"><i class="fas fa-check me-1"></i> GUARDAR</button>
+                        <button class="btn btn-success" onclick="Guardar()"><i class="fas fa-check me-1"></i> GUARDAR</button>
                         <button class="btn btn-dark" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i> CANCELAR</button>
                     </div>
                 </div>
@@ -68,10 +99,12 @@
 @section Scripts {
     <script>
         function DataTable() {
+            var anio=$('#selAño').val();
+            var mes=$('#selMes').val();
             $('#divDataTable').empty();
-            $('#divDataTable').load('@Url.Action("DataTable")', function () {
+            $('#divDataTable').load('@Url.Action("DataTable")',{anio, mes}, function () {
                 var size = window.innerHeight - 150;
-                TableNoSearch('#tblDatos', size);
+                TableNoSearch('#tblDataTable', size);
             });
         }
 
@@ -80,13 +113,11 @@
             $('#ModalNuevo').modal('show');
         }
 
-        function GuardarPresupuesto() {
+        function Guardar() {
             var id_tipo_gasto = $('#ddlTipoGasto').val();
             var monto = $('#txtMonto').val();
             var mes = $('#ddlMes').val();
-            var año = $('#txtAño').val();
-
-            // Validación de campos vacíos
+            var anio = $('#ddlAño').val();
             if (!monto) {
                 Alert('El campo Monto no puede estar vacío');
                 return;
@@ -95,19 +126,16 @@
                 Alert('El campo Mes no puede estar vacío');
                 return;
             }
-            if (!año) {
+            if (!anio) {
                 Alert('El campo Año no puede estar vacío');
                 return;
             }
-
-            // Enviar los datos mediante POST
-            $.post('@Url.Action("Guardar", "Presupuesto")',
+            $.post('@Url.Action("Guardar")',
             {
                 id_tipo_gasto,
                 monto,
                 mes,
-                año,
-                estado: 1
+                anio
             },
             function (response) {
                 if (response.resultado) {
@@ -120,9 +148,9 @@
             });
         }
 
-        function EliminarPresupuesto(id_presupuesto, tipo_gasto, monto) {
+        function Eliminar(id_presupuesto, tipo_gasto, monto) {
             Confirm('¿Desea eliminar el presupuesto de ' + tipo_gasto + ' con monto de Q' + monto + '?', function () {
-                $.post('@Url.Action("Eliminar", "Presupuesto")', { id_presupuesto }, function (response) {
+                $.post('@Url.Action("Eliminar")', { id_presupuesto }, function (response) {
                     if (response.resultado) {
                         Notify('Presupuesto eliminado correctamente.', 'success');
                         DataTable();

@@ -42,7 +42,7 @@ namespace Test_Gastos.Controllers
                     nombre = nombre,
                     apellido = apellido,
                     usuario = usuario,
-                    password = password,
+                    password = Extensiones.AESCryptography.Encrypt(password),
                     fecha_nacimiento = DateTime.Parse(fecha_nacimiento),
                     direccion = direccion,
                     correo = correo,

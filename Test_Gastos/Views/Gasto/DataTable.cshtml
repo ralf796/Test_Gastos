@@ -1,17 +1,20 @@
 ﻿@using Layers;
-@model List<Fondo_Monetario_BE>
+@model List<Gasto_Encabezado_BE>
 
 <div class="input-group bg-gastos-gray rounded-pill p-0">
     <button class="btn btn-primary" onclick="ShowModalNuevo()"><i class="fad fa-search-plus me-2"></i> Nuevo</button>
 </div>
+
 <table class="table table-bordered table-striped table-hover table-sm w-100" id="tblDataTable">
     <thead>
         <tr>
             <th class="align-middle text-center"></th>
-            <th class="align-middle text-center">DESCRIPCIÓN</th>
-            <th class="align-middle text-center">TIPO FONDO</th>
+            <th class="align-middle text-center">FECHA</th>
+            <th class="align-middle text-center">OBSERVACIONES</th>
+            <th class="align-middle text-center">NOMBRE COMERCIO</th>
+            <th class="align-middle text-center">TIPO DOCUMENTO</th>
             <th class="align-middle text-center">USUARIO</th>
-            <th class="align-middle text-center">SALDO</th>
+            <th class="align-middle text-center">FONDO MONETARIO</th>
             <th class="align-middle text-center">ESTADO</th>
         </tr>
     </thead>
@@ -20,13 +23,15 @@
         {
             <tr>
                 <td class="align-middle text-center">
-                    <i class="fas fa-edit text-primary h5 me-2 hvr-grow" title="Editar" onclick="ShowModalModificar('@row.id_fondo','@row.descripcion','@row.id_tipo_fondo','@row.saldo.ToString("N2")')"></i>
-                    <i class="fas fa-times text-danger h5 hvr-grow" title="Eliminar" onclick="Eliminar('@row.id_fondo','@row.descripcion')"></i>
+                    <i class="fas fa-search-plus text-primary h5 hvr-grow me-2" title="Ver detalle" onclick="DataTableDetalle('@row.id_gasto_encabezado')"></i>
+                    <i class="fas fa-times text-danger h5 hvr-grow" title="Eliminar" onclick="Eliminar('@row.id_gasto_encabezado', '@row.nombre_comercio')"></i>
                 </td>
-                <td class="align-middle">@row.descripcion</td>
-                <td class="align-middle text-center">@row.tipo_fondo</td>
+                <td class="align-middle text-center">@row.fecha.ToString("dd/MM/yyyy")</td>
+                <td class="align-middle text-start">@row.observaciones</td>
+                <td class="align-middle text-center">@row.nombre_comercio</td>
+                <td class="align-middle text-center">@row.tipo_documento</td>
                 <td class="align-middle text-center">@row.usuario</td>
-                <td class="align-middle text-end pe-2">@row.saldo.ToString("N2")</td>
+                <td class="align-middle text-start">@row.descripcion</td>
                 <td class="align-middle text-center">
                     @if (row.estado == 1)
                     {

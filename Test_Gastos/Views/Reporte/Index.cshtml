@@ -1,0 +1,268 @@
+﻿<div class="card">
+    <span class="badge badge-pill">REPORTES</span>
+    <div class="card-body">
+        <div class="row justify-content-center">
+            <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-4 col-xxl-4 d-flex align-content-center flex-wrap position-relative">
+                <label class="text-dark">TIPO DE REPORTE:</label>
+                <select class="form-select" id="selTipoReporte" onchange="ChangeTipo()">
+                    <option value="1">DEPOSITOS</option>
+                    <option value="2">GASTOS</option>
+                </select>
+            </div>
+            <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3 col-xxl-2 d-flex align-content-center flex-wrap position-relative divFechas">
+                <label class="text-dark">DESDE:</label>
+                <input type="date" class="form-control text-center" id="txtFecha1"/>
+            </div>
+            <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3 col-xxl-2 d-flex align-content-center flex-wrap position-relative divFechas">
+                <label class="text-dark">HASTA:</label>
+                <input type="date" class="form-control text-center" id="txtFecha2" />
+            </div>
+            <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-2 col-xxl-2 d-flex align-content-center flex-wrap position-relative">
+                <button class="btn btn-primary mt-3" onclick="DataDevexpress()"><i class="fas fa-sync"></i></button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="demo-container">
+                <div id="exportButton"></div>
+                <div id="gridContainer"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <!-- Incluye primero JSZip -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+
+    <!-- Luego incluye los scripts de DevExtreme -->
+    <script src="https://cdn3.devexpress.com/jslib/21.1.5/js/dx.all.js"></script>
+
+    <script>
+
+        function DataDevexpress() {
+            var tipo = $('#selTipoReporte').val();
+            var fecha1 = $('#txtFecha1').val();
+            var fecha2 = $('#txtFecha2').val();            
+            var customStore = new DevExpress.data.CustomStore({
+                load: function (loadOptions) {
+                    var d = $.Deferred();
+                    $.ajax({
+                        type: 'GET',
+                        url: '@Url.Action("DataDevexpress")',
+                        contentType: "application/json; charset=utf-8",
+                        dataType: 'json',
+                        data: { tipo, fecha1, fecha2 },
+                        cache: false,
+                        success: function (data) {
+                            var state = data["state"];
+                            if (state == 1) {
+                                data = JSON && JSON.parse(JSON.stringify(data)) || $.parseJSON(data);
+                                console.log(data);
+                                d.resolve(data);
+                            }
+                            else if (state == -1)
+                                Alert(data["Message"])
+                        },
+                        error: function (jqXHR, exception) {
+                            getErrorMessage(jqXHR, exception);
+                        }
+                    });
+                    return d.promise();
+                }
+            });
+            if(tipo==2){
+                var grid = $("#gridContainer").dxDataGrid({
+                    dataSource: new DevExpress.data.DataSource(customStore),
+                    showBorders: true,
+                    loadPanel: {
+                        text: "Cargando..."
+                    },
+                    filterRow: {
+                        visible: true,
+                        applyFilter: "auto"
+                    },
+                    searchPanel: {
+                        visible: true,
+                        width: 240,
+                        placeholder: "Buscar..."
+                    },
+                    headerFilter: {
+                        visible: true
+                    },
+                    scrolling: {
+                        useNative: false,
+                        scrollByContent: true,
+                        scrollByThumb: true,
+                        showScrollbar: "always" // or "onScroll" | "always" | "never"
+                    },
+                    columnAutoWidth: true,
+                    columns: [
+                        {
+                            dataField: "fecha",
+                            caption: "FECHA",
+                            alignment: "center",
+                            dataType: "datetime",
+                            format: "dd/MM/yyyy HH:mm:ss"
+                        },
+                        {
+                            dataField: "observaciones",
+                            caption: "OBSERVACIONES",
+                            alignment: "left"
+                        },
+                        {
+                            dataField: "nombre_comercio",
+                            caption: "NOMBRE COMERCIO",
+                            alignment: "center"
+                        },
+                        {
+                            dataField: "tipo_documento",
+                            caption: "TIPO DOCUMENTO",
+                            alignment: "center"
+                        },
+                        {
+                            dataField: "usuario",
+                            caption: "USUARIO",
+                            alignment: "center"
+                        },
+                        {
+                            dataField: "descripcion",
+                            caption: "DESCRIPCIÓN",
+                            alignment: "left"
+                        },
+                        {
+                            dataField: "tipo_gasto",
+                            caption: "TIPO GASTO",
+                            alignment: "center"
+                        },
+                        {
+                            dataField: "monto",
+                            caption: "MONTO",
+                            alignment: "right",
+                            format: "###,###.00",
+                            cellTemplate: function (container, options) {
+                                var fieldData = options.data;
+                                $("<span>").addClass("badge bg-primary").text("Q " + fieldData.monto.toFixed(2)).appendTo(container);
+                            }
+                        },
+                        {
+                            dataField: "estado",
+                            caption: "ESTADO",
+                            alignment: "center",
+                            cellTemplate: function (container, options) {
+                                var fieldData = options.data;
+                                if (fieldData.estado === 1) {
+                                    $("<span>").addClass("badge bg-success").text("ACTIVO").appendTo(container);
+                                } else {
+                                    $("<span>").addClass("badge bg-danger").text("INACTIVO").appendTo(container);
+                                }
+                            }
+                        }
+                    ]
+                }).dxDataGrid('instance');
+            }
+            else{
+                var grid = $("#gridContainer").dxDataGrid({
+                dataSource: new DevExpress.data.DataSource(customStore),
+                showBorders: true,
+                loadPanel: {
+                    text: "Cargando..."
+                },
+                filterRow: {
+                    visible: true,
+                    applyFilter: "auto"
+                },
+                searchPanel: {
+                    visible: true,
+                    width: 240,
+                    placeholder: "Buscar..."
+                },
+                headerFilter: {
+                    visible: true
+                },
+                scrolling: {
+                    useNative: false,
+                    scrollByContent: true,
+                    scrollByThumb: true,
+                    showScrollbar: "always" // or "onScroll" | "always" | "never"
+                },
+                columnAutoWidth: true,
+                    export: {
+                    enabled: true,
+                    fileName: "Reporte",
+                    excelFilterEnabled: true,
+                    excelWrapTextEnabled: true
+                },
+                toolbar: {
+                    items: [{
+                        location: 'after',
+                        widget: 'dxButton',
+                        options: {
+                            icon: 'exportxlsx',
+                            text: 'Exportar a Excel',
+                            onClick: function () {
+                                grid.exportToExcel(false);
+                            }
+                        }
+                    }]
+                },
+                columns: [
+                    {
+                        dataField: "fecha",
+                        caption: "FECHA",
+                        alignment: "center",
+                        dataType: "datetime",
+                        format: "dd/MM/yyyy HH:mm:ss"
+                    },
+                    {
+                        dataField: "descripcion",
+                        caption: "DESCRIPCIÓN",
+                        alignment: "left"
+                    },
+                    {
+                        dataField: "usuario",
+                        caption: "USUARIO",
+                        alignment: "left"
+                    },
+                    {
+                        dataField: "monto",
+                        caption: "MONTO",
+                        alignment: "right",
+                        format: "###,###.00",
+                        cellTemplate: function (container, options) {
+                            var fieldData = options.data;
+                            $("<span>").addClass("badge bg-primary").text("Q " + fieldData.monto.toFixed(2)).appendTo(container);
+                        }
+                    },
+                    {
+                        dataField: "estado",
+                        caption: "ESTADO",
+                        alignment: "center",
+                        cellTemplate: function (container, options) {
+                            var fieldData = options.data;
+                            if (fieldData.estado === 1) {
+                                $("<span>").addClass("badge bg-success").text("ACTIVO").appendTo(container);
+                            } else {
+                                $("<span>").addClass("badge bg-danger").text("INACTIVO").appendTo(container);
+                            }
+                        }
+                    }
+                ],
+                export: {
+                    enabled: true,
+                    fileName: 'REPORTE CORTES DE CAJA'
+                }
+                }).dxDataGrid('instance');
+            }
+        }
+
+        $(document).ready(function () {
+             const today = new Date().toISOString().split('T')[0];
+            $('#txtFecha1').val(today);
+            $('#txtFecha2').val(today);
+
+            console.log(1,typeof JSZip);  // Debería devolver "function"
+
+        });
+    </script>
+}

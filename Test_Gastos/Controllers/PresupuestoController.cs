@@ -23,5 +23,44 @@ namespace Test_Gastos.Controllers
                 lista = lista.Where(x => x.estado == 1).ToList();
             return Json(lista);
         }
+
+        [HttpPost]
+        public IActionResult Guardar(int id_tipo_gasto = 0, decimal monto = 0, int anio=0, int mes=0)
+        {
+            Respuesta respuesta = new Respuesta();
+            try
+            {
+                Presupuesto_BE item = new Presupuesto_BE
+                {
+                    id_tipo_gasto = id_tipo_gasto,
+                    monto = monto,
+                    anio = anio,
+                    mes = mes,
+                    id_usuario = UsuarioActivo.IdUsuario
+                };
+                respuesta = Presupuesto_BLL.Guardar(item);
+            }
+            catch (Exception ex)
+            {
+                respuesta.Descripcion = "Error al guardar el presupuesto: " + ex.Message;
+            }
+            return Json(respuesta);
+        }
+        [HttpPost]
+        public IActionResult Eliminar(int id_presupuesto = 0)
+        {
+            Respuesta respuesta = new Respuesta();
+            try
+            {
+                respuesta = Presupuesto_BLL.Eliminar(new Presupuesto_BE { id_presupuesto = id_presupuesto });
+            }
+            catch (Exception ex)
+            {
+                respuesta.Descripcion = "Error al eliminar el presupuesto: " + ex.Message;
+            }
+            return Json(respuesta);
+        }
+
+
     }
 }
